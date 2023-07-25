@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "statistic")
 public class Statistic {
-    //statistics event requests
     @Id
     @Column(name = "request_id", nullable = false, length = Integer.MAX_VALUE)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +25,6 @@ public class Statistic {
     private String uri;
     @Column(nullable = false)
     private String ip;
-//    @DateTimeFormat
     @Column(nullable = false)
     private LocalDateTime timestamp;
 
