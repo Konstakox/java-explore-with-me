@@ -2,7 +2,6 @@ package ru.practicum.service.request;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.event.EventRequestStatusUpdateRequest;
 import ru.practicum.dto.event.EventRequestStatusUpdateResult;
 import ru.practicum.dto.request.EventRequestStatusUpdateResultDto;
@@ -23,7 +22,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class RequestServiceImpl implements RequestService {
 
@@ -111,7 +109,7 @@ public class RequestServiceImpl implements RequestService {
             if (!event.getRequestModeration() || event.getParticipantLimit() == 0
                     || event.getConfirmedRequests() >= event.getParticipantLimit()
                     || request.getStatus() != Status.PENDING) {
-                throw new MyIncorrectData("Невозможно подтвердить заявку");
+                throw new MyIncorrectRequestException("Невозможно подтвердить заявку");
             }
             if (eventRequestStatusUpdateRequest.getStatus() == Status.CONFIRMED
                     && (event.getConfirmedRequests() + countConfirmations) < event.getParticipantLimit()) {

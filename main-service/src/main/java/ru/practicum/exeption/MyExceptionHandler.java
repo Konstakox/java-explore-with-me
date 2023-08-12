@@ -3,6 +3,7 @@ package ru.practicum.exeption;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,6 +18,14 @@ import java.util.Objects;
 @Slf4j
 @RestControllerAdvice
 public class MyExceptionHandler {
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Map<String, String> handleHttpMessageNotReadableException(HttpMessageNotReadableException exception) {
+        log.error(exception.getMessage(), exception);
+        return Map.of("error", Objects.requireNonNull(exception.getMessage()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {

@@ -3,16 +3,14 @@ package ru.practicum.client;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.practicum.dto.StatInputDto;
 import ru.practicum.dto.StatOutputDto;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -30,20 +28,42 @@ public class StatClient {
         restTemplate.postForLocation(url + "/hit", statInputDto);
     }
 
-//    public void saveHit(StatInputDto statInputDto) {
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.APPLICATION_JSON);
-//
-//        HttpEntity<StatInputDto> request = new HttpEntity<>(statInputDto, headers);
-//        restTemplate.exchange(url + "/hit", HttpMethod.POST, request, StatInputDto.class);
-//    }
-
-    public List<StatOutputDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
+    public List<StatOutputDto> getStats(String start, String end, List<String> uris, Boolean unique) {
         log.info("Запрос на получение статистики с {} по {}, идентификатор сервиса {}, уникальность IP - {}", start, end, uris, unique);
 
-        ResponseEntity<StatOutputDto[]> list = restTemplate
-                .getForEntity(url + "/stats?start={start}&end={end}&uris={uris}&unique={unique}",
-                        StatOutputDto[].class);
-        return Arrays.asList(Objects.requireNonNull(list.getBody()));
+        StringBuilder uriBuilder = new StringBuilder(url + "/stats?start={start}&end={end}");
+        Map<String, Object> parameters = Map.of(
+                "start", start,
+                "end", end);
+
+        if (uris != null && !uris.isEmpty()) {
+            for (String uri : uris) {
+                uriBuilder.append("&uris=").append(uri);
+            }
+        }
+
+        if (unique != null) {
+            uriBuilder.append("&unique=").append(unique);
+        }
+
+        Object responseBody = restTemplate.getForEntity(
+                uriBuilder.toString(),
+                Object.class, parameters).getBody();
+
+        List<StatOutputDto> stats = new ArrayList<>();
+        if (responseBody != null) {
+            List<Map<String, Object>> body = (List<Map<String, Object>>) responseBody;
+            if (body != null && body.size() > 0) {
+                for (Map<String, Object> s : body) {
+                    StatOutputDto statOutputDto = StatOutputDto.builder()
+                            .app(s.get("app").toString())
+                            .uri(s.get("uri").toString())
+                            .hits(((Number) s.get("hits")).longValue())
+                            .build();
+                    stats.add(statOutputDto);
+                }
+            }
+        }
+        return stats;
     }
 }

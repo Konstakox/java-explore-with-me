@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.support.PagedListHolder;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import ru.practicum.client.StatClient;
+import ru.practicum.dto.StatOutputDto;
 import ru.practicum.dto.event.*;
 import ru.practicum.exeption.MyIncorrectData;
 import ru.practicum.exeption.MyIncorrectDataTimeException;
@@ -18,8 +20,7 @@ import ru.practicum.repository.LocationRepository;
 import ru.practicum.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +31,7 @@ public class EventServiceImpl implements EventService {
     private final LocationRepository locationRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final StatClient statClient;
 
     @Override
     public List<EventFullDto> getEventsByParameters(List<Integer> users, List<State> states, List<Integer> categories,
@@ -190,6 +192,9 @@ public class EventServiceImpl implements EventService {
                     page);
         }
 
+        Map<Integer, Integer> hits = getStatisticFromListEvents(result);
+        result.forEach(event -> event.setViews(hits.get(event.getId())));
+
         PagedListHolder<EventShortDto> pageOut = new PagedListHolder<>(result
                 .stream()
                 .map(EventMapper::toEventShortDto)
@@ -208,8 +213,33 @@ public class EventServiceImpl implements EventService {
         if (!event.getState().equals(State.PUBLISHED)) {
             throw new MyNotFoundException("Событие не опубликовано с id " + eventId);
         }
-        event.setViews(event.getViews() + 1);
-        eventRepository.save(event);
+
+        Map<Integer, Integer> hits = getStatisticFromListEvents(List.of(event));
+        Integer views = hits.get(event.getId());
+        event.setViews(Objects.requireNonNullElse(views, 0));
+        log.info("Событие с актуальной статистикой с id{} hits {} event {}", eventId, hits, event);
+
         return EventMapper.toEventFullDto(event);
+    }
+
+    private Map<Integer, Integer> getStatisticFromListEvents(List<Event> events) {
+        List<Integer> idEvents = events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
+
+        String start = "1000-01-01 00:01:01";
+        String end = "3000-01-01 00:01:01";
+
+        String eventsUri = "/events/";
+        List<String> uris = idEvents.stream().map(id -> eventsUri + id).collect(Collectors.toList());
+        List<StatOutputDto> response = statClient.getStats(start, end, uris, true);
+        Map<Integer, Integer> hits = new HashMap<>();
+
+        for (StatOutputDto statOutputDto : response) {
+            String uri = statOutputDto.getUri();
+            hits.put(Integer.parseInt(uri.substring(eventsUri.length())), Math.toIntExact(statOutputDto.getHits()));
+        }
+
+        return hits;
     }
 }

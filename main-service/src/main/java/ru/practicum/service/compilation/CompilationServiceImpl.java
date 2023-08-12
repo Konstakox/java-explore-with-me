@@ -1,6 +1,7 @@
 package ru.practicum.service.compilation;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.support.PagedListHolder;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +43,13 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public CompilationDto update(Integer compId, UpdateCompilationRequest updateCompilationRequest) {
+        if (updateCompilationRequest.getPinned() == null) {
+            updateCompilationRequest.setPinned(false);
+        }
+        if (updateCompilationRequest.getEvents() == null) {
+            updateCompilationRequest.setEvents(new HashSet<>());
+        }
+
         Compilation donor = CompilationMapper.toCompilationUpdate(updateCompilationRequest);
         Compilation recipient = compilationRepository.findById(compId).orElseThrow(
                 () -> new MyNotFoundException("Подборка не найдена с id " + compId));
@@ -68,9 +76,15 @@ public class CompilationServiceImpl implements CompilationService {
         } else {
             result = compilationRepository.findAllByPinned(pinned, page);
         }
-        return result.stream()
+
+        PagedListHolder<CompilationDto> pageOut = new PagedListHolder<>(result
+                .stream()
                 .map(CompilationMapper::toCompilationDto)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
+        pageOut.setPageSize(size);
+        pageOut.setPage(from);
+
+        return new ArrayList<>(pageOut.getPageList());
     }
 
     @Override
