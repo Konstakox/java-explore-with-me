@@ -1,7 +1,7 @@
 package ru.practicum.dto.event;
 
 import lombok.Data;
-import ru.practicum.model.Status;
+import ru.practicum.constant.Status;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;

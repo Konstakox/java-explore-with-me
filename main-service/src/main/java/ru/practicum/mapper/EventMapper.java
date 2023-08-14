@@ -1,14 +1,16 @@
 package ru.practicum.mapper;
 
+import lombok.experimental.UtilityClass;
+import ru.practicum.constant.State;
 import ru.practicum.dto.event.*;
 import ru.practicum.model.Category;
 import ru.practicum.model.Event;
 import ru.practicum.model.Location;
-import ru.practicum.model.State;
 
+@UtilityClass
 public class EventMapper {
 
-    public static Event toEvent(NewEventDto newEventDto) {
+    public Event toEvent(NewEventDto newEventDto) {
         return Event.builder()
                 .annotation(newEventDto.getAnnotation())
                 .category(Category.builder().id(newEventDto.getCategory()).build())
@@ -22,7 +24,7 @@ public class EventMapper {
                 .build();
     }
 
-    public static Event toEvent(UpdateEventUserRequest updateUserDto) {
+    public Event toEvent(UpdateEventUserRequest updateUserDto) {
         Event event = new Event();
         if (updateUserDto.getAnnotation() != null) event.setLocation(
                 LocationMapper.toLocation(updateUserDto.getLocation()));
@@ -47,7 +49,7 @@ public class EventMapper {
         return event;
     }
 
-    public static Event toEvent(UpdateEventAdminRequest updateAdminDto) {
+    public Event toEvent(UpdateEventAdminRequest updateAdminDto) {
         Event event = new Event();
         if (updateAdminDto.getAnnotation() != null) event.setAnnotation(
                 updateAdminDto.getAnnotation());
@@ -72,7 +74,7 @@ public class EventMapper {
         return event;
     }
 
-    public static EventFullDto toEventFullDto(Event event) {
+    public EventFullDto toEventFullDto(Event event) {
         return EventFullDto.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
@@ -89,11 +91,11 @@ public class EventMapper {
                 .requestModeration(event.getRequestModeration())
                 .state(event.getState().toString())
                 .title(event.getTitle())
-                .views(event.getViews().intValue())
+                .views(event.getViews())
                 .build();
     }
 
-    public static Event updateEvent(Event donor, Event recipient) {
+    public Event updateEvent(Event donor, Event recipient) {
         if (donor.getAnnotation() != null) recipient.setAnnotation(donor.getAnnotation());
         if (donor.getCategory() != null) recipient.setCategory(donor.getCategory());
         if (donor.getDescription() != null) recipient.setDescription(donor.getDescription());
@@ -107,7 +109,7 @@ public class EventMapper {
         return recipient;
     }
 
-    public static EventShortDto toEventShortDto(Event event) {
+    public EventShortDto toEventShortDto(Event event) {
         return EventShortDto.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
@@ -121,7 +123,7 @@ public class EventMapper {
                 .build();
     }
 
-    private static State findState(String str) {
+    private State findState(String str) {
         if (str == null) return null;
         if (str.equals("CANCEL_REVIEW")) return State.CANCELED;
         if (str.equals("PUBLISH_EVENT")) return State.PUBLISHED;

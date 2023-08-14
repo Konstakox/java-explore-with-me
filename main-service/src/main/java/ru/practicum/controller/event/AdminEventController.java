@@ -7,7 +7,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.UpdateEventAdminRequest;
-import ru.practicum.model.State;
+import ru.practicum.constant.State;
 import ru.practicum.service.event.EventService;
 
 import javax.validation.Valid;

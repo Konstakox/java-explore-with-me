@@ -2,20 +2,22 @@ package ru.practicum.service.request;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.constant.State;
+import ru.practicum.constant.Status;
 import ru.practicum.dto.event.EventRequestStatusUpdateRequest;
-import ru.practicum.dto.event.EventRequestStatusUpdateResult;
-import ru.practicum.dto.request.EventRequestStatusUpdateResultDto;
+import ru.practicum.dto.event.EventRequestStatusUpdateResultDto;
 import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.exeption.MyIncorrectData;
 import ru.practicum.exeption.MyIncorrectRequestException;
 import ru.practicum.exeption.MyNotFoundException;
 import ru.practicum.mapper.RequestMapper;
-import ru.practicum.model.*;
+import ru.practicum.model.Event;
+import ru.practicum.model.Request;
+import ru.practicum.model.User;
 import ru.practicum.repository.EventRepository;
 import ru.practicum.repository.RequestRepository;
 import ru.practicum.repository.UserRepository;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +62,7 @@ public class RequestServiceImpl implements RequestService {
         }
 
         Request newRequest = Request.builder()
-                .created(Timestamp.valueOf(LocalDateTime.now()))
+                .created(LocalDateTime.now())
                 .requester(user)
                 .event(event)
                 .status(Status.PENDING)
@@ -127,15 +129,20 @@ public class RequestServiceImpl implements RequestService {
         event.setConfirmedRequests(getRequestsByEventByStatus(event.getId(), Status.CONFIRMED));
         eventRepository.save(event);
 
-        EventRequestStatusUpdateResult result = new EventRequestStatusUpdateResult();
-        result.setConfirmedRequests(requests.stream()
+        List<ParticipationRequestDto> participationRequestDto = requests.stream()
+                .map(RequestMapper::toParticipationRequestDto)
+                .collect(Collectors.toList());
+
+        EventRequestStatusUpdateResultDto result = new EventRequestStatusUpdateResultDto();
+
+        result.setConfirmedRequests(participationRequestDto.stream()
                 .filter(r -> r.getStatus() == Status.CONFIRMED)
                 .collect(Collectors.toList()));
-        result.setRejectedRequests(requests.stream()
+        result.setRejectedRequests(participationRequestDto.stream()
                 .filter(r -> r.getStatus() == Status.REJECTED)
                 .collect(Collectors.toList()));
 
-        return RequestMapper.toEventRequestStatusUpdateResultDto(result);
+        return result;
     }
 
     @Override

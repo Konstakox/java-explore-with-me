@@ -6,6 +6,8 @@ import org.springframework.beans.support.PagedListHolder;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.client.StatClient;
+import ru.practicum.constant.SortEvent;
+import ru.practicum.constant.State;
 import ru.practicum.dto.StatOutputDto;
 import ru.practicum.dto.event.*;
 import ru.practicum.exeption.MyIncorrectData;

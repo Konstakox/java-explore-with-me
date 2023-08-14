@@ -1,16 +1,15 @@
 package ru.practicum.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import ru.practicum.constant.Status;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "requests")
-@Data
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,7 +19,7 @@ public class Request {
     @Column(name = "requests_id", nullable = false)
     private Integer id;
     @Column(nullable = false)
-    private Timestamp created;
+    private LocalDateTime created;
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;

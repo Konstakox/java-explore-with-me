@@ -19,45 +19,35 @@ import java.util.Objects;
 @RestControllerAdvice
 public class MyExceptionHandler {
 
-    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ExceptionHandler({DataIntegrityViolationException.class, HttpMessageNotReadableException.class,
+            MyCategoryNotEmpty.class, MyIncorrectData.class, MyIncorrectRequestException.class,
+            MyIncorrectStateException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
-    public Map<String, String> handleHttpMessageNotReadableException(HttpMessageNotReadableException exception) {
+    public Map<String, String> handleConflictException(Throwable exception) {
         log.error(exception.getMessage(), exception);
         return Map.of("error", Objects.requireNonNull(exception.getMessage()));
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler({MethodArgumentNotValidException.class, ConstraintViolationException.class,
+            MissingServletRequestParameterException.class, MethodArgumentTypeMismatchException.class,
+            MyIncorrectDataTimeException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
+    public Map<String, String> handleBadRequestException(Throwable exception) {
         log.error(exception.getMessage(), exception);
         return Map.of("error", exception.getMessage());
     }
 
-    @ExceptionHandler(ConstraintViolationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleConstraintViolationException(ConstraintViolationException exception) {
+    @ExceptionHandler({MyNotFoundException.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleNotFoundException(Throwable exception) {
         log.error(exception.getMessage(), exception);
         return Map.of("error", exception.getMessage());
     }
 
-    @ExceptionHandler(MissingServletRequestParameterException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleMissingServletRequestParameterException(MissingServletRequestParameterException exception) {
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public Map<String, String> handleUnknownException(Throwable exception) {
         log.error(exception.getMessage(), exception);
-        return Map.of("error", Objects.requireNonNull(exception.getMessage()));
-    }
-
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException exception) {
-        log.error(exception.getMessage(), exception);
-        return Map.of("error", Objects.requireNonNull(exception.getMessage()));
-    }
-
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public Map<String, String> handleDataIntegrityViolationException(DataIntegrityViolationException exception) {
-        log.error(exception.getMessage(), exception);
-        return Map.of("error", Objects.requireNonNull(exception.getMessage()));
+        return Map.of("error", exception.getMessage());
     }
 }

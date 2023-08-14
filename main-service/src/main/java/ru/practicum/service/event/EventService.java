@@ -1,8 +1,8 @@
 package ru.practicum.service.event;
 
 import ru.practicum.dto.event.*;
-import ru.practicum.model.SortEvent;
-import ru.practicum.model.State;
+import ru.practicum.constant.SortEvent;
+import ru.practicum.constant.State;
 
 import java.time.LocalDateTime;
 import java.util.List;

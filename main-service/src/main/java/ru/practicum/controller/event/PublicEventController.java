@@ -9,7 +9,7 @@ import ru.practicum.client.StatClient;
 import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.EventShortDto;
 import ru.practicum.mapper.StatInputDtoMapper;
-import ru.practicum.model.SortEvent;
+import ru.practicum.constant.SortEvent;
 import ru.practicum.service.event.EventService;
 
 import javax.servlet.http.HttpServletRequest;
