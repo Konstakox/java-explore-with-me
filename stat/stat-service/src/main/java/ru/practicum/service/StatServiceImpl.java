@@ -5,11 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.StatInputDto;
 import ru.practicum.dto.StatOutputDto;
+import ru.practicum.exeption.MyIncorrectDataTimeException;
 import ru.practicum.mapper.Mapper;
 import ru.practicum.model.Statistic;
 import ru.practicum.repository.StatisticRepository;
 
-import java.security.InvalidParameterException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -30,7 +30,7 @@ public class StatServiceImpl implements StatService {
     public List<StatOutputDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         if (end.isBefore(start)) {
             log.info("Сервис, время начала позже окончания start {}, end {}", start, end);
-            throw new InvalidParameterException("время начала позже окончания");
+            throw new MyIncorrectDataTimeException("время начала позже окончания");
         }
         List<StatOutputDto> result;
         if (unique) {
