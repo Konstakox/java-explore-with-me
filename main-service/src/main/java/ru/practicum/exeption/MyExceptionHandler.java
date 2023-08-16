@@ -21,7 +21,7 @@ public class MyExceptionHandler {
 
     @ExceptionHandler({DataIntegrityViolationException.class, HttpMessageNotReadableException.class,
             MyCategoryNotEmpty.class, MyIncorrectData.class, MyIncorrectRequestException.class,
-            MyIncorrectStateException.class})
+            MyIncorrectStateException.class, MyIncorrectCommentException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     public Map<String, String> handleConflictException(Throwable exception) {
         log.error(exception.getMessage(), exception);
