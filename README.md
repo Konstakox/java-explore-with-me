@@ -56,3 +56,7 @@
 ---
 Схема базы данных сервиса
 ![](diagram-service.png)
+
+---
+# Запуск приложения
+С помощью контейнеров через Docker. Модули statistics-server, ewm-service, БД stats-db и БД ewm-db запускаются в отдельном Docker-контейнере каждый. Их взаимодействие настроено через Docker Compose.
